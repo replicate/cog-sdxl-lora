@@ -15,6 +15,7 @@ dataset
 training_data
 training_out
 output*
+sample*.png
 training_out*
 trained_model.tar
 checkpoint*

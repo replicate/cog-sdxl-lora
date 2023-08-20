@@ -246,17 +246,6 @@ class Predictor(BasePredictor):
         )
         return image, has_nsfw_concept
 
-    def remove_lora(self):
-        # remove lora of txt2img_pipe.unet
-        self.txt2img_pipe = DiffusionPipeline.from_pretrained(
-            SDXL_MODEL_CACHE,
-            torch_dtype=torch.float16,
-            use_safetensors=True,
-            variant="fp16",
-        ).to("cuda")
-        self.is_lora = False
-        self.token_map = {}
-        self.tuned_model = False
 
     @torch.inference_mode()
     def predict(
@@ -346,13 +335,13 @@ class Predictor(BasePredictor):
             seed = int.from_bytes(os.urandom(2), "big")
         print(f"Using seed: {seed}")
         start = time.time()
-        print(lora_url)
-        if lora_url is not None:
+
+        if lora_url:
             self.load_trained_weights(lora_url, self.txt2img_pipe)
         else:
-            self.remove_lora()  # TODO : optimize this
+            raise Exception("lora_url is required")
 
-        print(f"Time took to Load / remove LoRA: {time.time() - start}")
+        print(f"Time took to load lora: {time.time() - start}")
         sdxl_kwargs = {}
         if self.tuned_model:
             # consistency with fine-tuning API
